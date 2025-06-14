@@ -16,14 +16,20 @@ RUN npm run build
 # Production stage
 FROM nginx:alpine
 
+# Argument for nginx config file (default to nginx.conf)
+ARG NGINX_CONF=nginx.conf
+
 # Copy custom nginx config
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY ${NGINX_CONF} /etc/nginx/conf.d/default.conf
 
 # Copy built files from builder stage
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Expose port
-EXPOSE 80
+# Create directory for SSL certificates
+RUN mkdir -p /etc/nginx/ssl
+
+# Expose ports
+EXPOSE 80 443
 
 # Start nginx
 CMD ["nginx", "-g", "daemon off;"]

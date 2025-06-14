@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: chatbot-backend
+    environment:
+      - ENVIRONMENT=production
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS}
+      - EC2_PUBLIC_IP=${EC2_PUBLIC_IP}
+      - PRODUCTION_FRONTEND_URL=${PRODUCTION_FRONTEND_URL}
+      - AWS_REGION=${AWS_REGION:-us-east-1}
+      - RATE_LIMIT_PER_MINUTE=${RATE_LIMIT_PER_MINUTE:-60}
+    ports:
+      - "8000:8000"
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - chatbot-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - NGINX_CONF=nginx.https.conf
+    container_name: chatbot-frontend
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - backend
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - chatbot-network
+    volumes:
+      - ./ssl:/etc/nginx/ssl:ro  # Mount SSL certificates
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  chatbot-network:
+    driver: bridge

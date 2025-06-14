@@ -85,6 +85,10 @@ The application will be available at http://localhost:5173
 - Docker support for easy deployment
 - AWS EC2 deployment ready
 - Comprehensive test structure
+- Rate limiting to prevent API abuse
+- Request body size limits (1MB)
+- Security headers (CSP, HSTS, etc.)
+- HTTPS/SSL support for production
 
 ## Customization
 
@@ -143,6 +147,8 @@ npm run test:coverage
 
 ### AWS EC2 Deployment
 
+#### Basic HTTP Deployment
+
 1. **Update environment variables**:
    - Set `EC2_PUBLIC_IP` in `.env`
    - Set `PRODUCTION_FRONTEND_URL` if using a domain
@@ -150,6 +156,7 @@ npm run test:coverage
 
 2. **Security Group Configuration**:
    - Port 80 (HTTP) for frontend
+   - Port 443 (HTTPS) for frontend (if using SSL)
    - Port 8000 (or custom) for backend API
    - Port 22 (SSH) for administration
 
@@ -163,13 +170,62 @@ npm run test:coverage
    cp backend/.env.example backend/.env
    # Edit backend/.env with production values
    
-   # Build and run
+   # Build and run (HTTP)
    docker-compose up -d --build
    ```
 
-4. **Configure Nginx (optional)**:
-   - Use the provided `frontend/nginx.conf` as a reference
-   - Set up SSL with Let's Encrypt for HTTPS
+#### HTTPS/SSL Deployment
+
+1. **Obtain SSL Certificates**:
+   ```bash
+   # Using Let's Encrypt (recommended)
+   sudo apt-get update
+   sudo apt-get install certbot
+   
+   # Generate certificates
+   sudo certbot certonly --standalone -d yourdomain.com -d www.yourdomain.com
+   
+   # Certificates will be in:
+   # /etc/letsencrypt/live/yourdomain.com/fullchain.pem (cert.pem)
+   # /etc/letsencrypt/live/yourdomain.com/privkey.pem (key.pem)
+   ```
+
+2. **Prepare SSL Certificates**:
+   ```bash
+   # Create SSL directory
+   mkdir -p ssl
+   
+   # Copy certificates (or create symlinks)
+   sudo cp /etc/letsencrypt/live/yourdomain.com/fullchain.pem ssl/cert.pem
+   sudo cp /etc/letsencrypt/live/yourdomain.com/privkey.pem ssl/key.pem
+   sudo chmod 644 ssl/cert.pem
+   sudo chmod 600 ssl/key.pem
+   ```
+
+3. **Deploy with HTTPS**:
+   ```bash
+   # Use production docker-compose with SSL
+   docker-compose -f docker-compose.prod.yml up -d --build
+   ```
+
+4. **Auto-renew SSL Certificates**:
+   ```bash
+   # Add to crontab
+   sudo crontab -e
+   
+   # Add this line to renew certificates automatically
+   0 2 * * * certbot renew --quiet && docker-compose -f docker-compose.prod.yml restart frontend
+   ```
+
+#### Using AWS Application Load Balancer (ALB)
+
+For production deployments, consider using AWS ALB for SSL termination:
+
+1. Create an ALB with HTTPS listener
+2. Configure SSL certificate in AWS Certificate Manager
+3. Point ALB to EC2 instance on port 80
+4. Update security groups accordingly
+5. Use standard `docker-compose.yml` (ALB handles SSL)
 
 ### Environment Variables
 
@@ -178,8 +234,45 @@ Key environment variables for production:
 - `ENVIRONMENT`: Set to "production"
 - `EC2_PUBLIC_IP`: Your EC2 instance public IP
 - `PRODUCTION_FRONTEND_URL`: Your domain URL (if applicable)
-- `RATE_LIMIT_PER_MINUTE`: API rate limiting
+- `RATE_LIMIT_PER_MINUTE`: API rate limiting (default: 60)
 - `LOG_LEVEL`: Logging level (INFO, DEBUG, etc.)
+- `ALLOWED_ORIGINS`: Comma-separated list of allowed CORS origins
+- `AWS_REGION`: AWS region for future AWS service integrations
+
+### Security Considerations
+
+#### Implemented Security Features
+
+1. **Input Validation**:
+   - Message length limits (1-1000 characters)
+   - Request body size limit (1MB)
+   - Whitespace and empty message validation
+
+2. **Rate Limiting**:
+   - Configurable per-minute request limits
+   - Per-IP address tracking
+
+3. **Security Headers**:
+   - Content Security Policy (CSP)
+   - Strict Transport Security (HSTS) for HTTPS
+   - X-Frame-Options, X-Content-Type-Options, X-XSS-Protection
+   - Referrer Policy
+
+4. **CORS Protection**:
+   - Whitelist-based origin validation
+   - Specific method and header restrictions
+
+5. **Error Handling**:
+   - Generic error messages to prevent information leakage
+   - Proper logging without exposing sensitive data
+
+#### Additional Security Recommendations
+
+1. **Authentication**: Implement JWT or session-based authentication
+2. **API Keys**: Use AWS Secrets Manager for sensitive configuration
+3. **Monitoring**: Set up CloudWatch alerts for suspicious activity
+4. **WAF**: Consider AWS WAF for additional protection
+5. **Updates**: Regularly update dependencies and Docker images
 
 ## License
 
