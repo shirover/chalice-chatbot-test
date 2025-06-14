@@ -34,9 +34,9 @@ async def send_message(
     try:
         # ログ用のリクエストIDを取得
         request_id = getattr(request.state, 'request_id', 'unknown')
-        remote_addr = request.client.host if request.client else 'unknown'
         
         # 機密内容を公開せずにメッセージをログ記録
+        remote_addr = request.client.host if request.client else 'unknown'
         logger.info(f"Request {request_id}: Processing chat message from {remote_addr}")
         
         response = await chatbot_service.process_message(chat_message.message)

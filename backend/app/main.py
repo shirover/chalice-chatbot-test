@@ -34,14 +34,14 @@ async def add_request_id_and_limit_size(request: Request, call_next):
     request_id = str(uuid.uuid4())
     request.state.request_id = request_id
     
-    # リクエストボディサイズ制限をチェック (1MB)
+    # リクエストボディサイズ制限をチェック
     if request.headers.get("content-length"):
         content_length = int(request.headers["content-length"])
-        if content_length > 1024 * 1024:  # 1MB制限
+        if content_length > settings.MAX_REQUEST_SIZE:
             logger.warning(f"Request {request_id} rejected: body too large ({content_length} bytes)")
             return JSONResponse(
                 status_code=413,
-                content={"detail": "Request body too large. Maximum size is 1MB"},
+                content={"detail": f"Request body too large. Maximum size is {settings.MAX_REQUEST_SIZE // (1024 * 1024)}MB"},
                 headers={"X-Request-ID": request_id}
             )
     

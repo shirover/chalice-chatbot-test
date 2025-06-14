@@ -14,16 +14,16 @@ def test_default_settings():
 
 def test_cors_origins():
     settings = Settings()
-    assert "http://localhost:3000" in settings.ALLOWED_ORIGINS
-    assert "http://localhost:5173" in settings.ALLOWED_ORIGINS
+    assert "http://localhost:3000" in settings.allowed_origins
+    assert "http://localhost:5173" in settings.allowed_origins
 
 def test_ec2_configuration():
     # EC2設定でテスト
     os.environ["EC2_PUBLIC_IP"] = "54.123.45.67"
     settings = Settings()
     
-    assert f"http://54.123.45.67" in settings.ALLOWED_ORIGINS
-    assert f"https://54.123.45.67" in settings.ALLOWED_ORIGINS
+    assert f"http://54.123.45.67" in settings.allowed_origins
+    assert f"https://54.123.45.67" in settings.allowed_origins
     
     # クリーンアップ
     del os.environ["EC2_PUBLIC_IP"]
@@ -32,7 +32,7 @@ def test_production_frontend_url():
     os.environ["PRODUCTION_FRONTEND_URL"] = "https://mychatbot.com"
     settings = Settings()
     
-    assert "https://mychatbot.com" in settings.ALLOWED_ORIGINS
+    assert "https://mychatbot.com" in settings.allowed_origins
     
     # クリーンアップ
     del os.environ["PRODUCTION_FRONTEND_URL"]
