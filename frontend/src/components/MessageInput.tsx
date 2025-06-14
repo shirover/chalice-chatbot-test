@@ -24,7 +24,7 @@ const MessageInput: React.FC<MessageInputProps> = ({ onSendMessage, isLoading })
         className="message-input"
         value={message}
         onChange={(e) => setMessage(e.target.value)}
-        placeholder="Type your message..."
+        placeholder="メッセージを入力..."
         disabled={isLoading}
         aria-label="Message input"
         maxLength={1000}
@@ -35,11 +35,11 @@ const MessageInput: React.FC<MessageInputProps> = ({ onSendMessage, isLoading })
         disabled={isLoading || !message.trim()}
         aria-label="Send message"
       >
-        {isLoading ? 'Sending...' : 'Send'}
+        {isLoading ? '送信中...' : '送信'}
       </button>
     </form>
   )
 }
 
-// Memoize to prevent unnecessary re-renders
+// 不要な再レンダリングを防ぐためにメモ化
 export default memo(MessageInput)

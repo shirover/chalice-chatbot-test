@@ -1,32 +1,32 @@
 class ChatbotService:
     """
-    Chatbot service for processing user messages.
+    ユーザーメッセージを処理するチャットボットサービス。
     
-    This is a placeholder implementation that echoes the user's message.
-    In a production environment, this should be replaced with actual AI/ML
-    chatbot logic such as:
-    - OpenAI API integration
-    - Custom trained models
-    - Rule-based conversation systems
-    - Integration with other AI services
+    これはユーザーのメッセージをエコーするプレースホルダー実装です。
+    プロダクション環境では、以下のような実際のAI/ML
+    チャットボットロジックに置き換える必要があります：
+    - OpenAI API統合
+    - カスタム訓練済みモデル
+    - ルールベースの会話システム
+    - 他のAIサービスとの統合
     """
     
     async def process_message(self, message: str) -> str:
         """
-        Process a user message and generate a response.
+        ユーザーメッセージを処理してレスポンスを生成。
         
-        Args:
-            message (str): The user's input message
+        引数:
+            message (str): ユーザーの入力メッセージ
             
-        Returns:
-            str: The chatbot's response
+        戻り値:
+            str: チャットボットのレスポンス
             
-        Raises:
-            ValueError: If the message is invalid
+        例外:
+            ValueError: メッセージが無効な場合
         """
-        # Message validation is already done in the Pydantic model
-        # No need to duplicate validation here
+        # メッセージのバリデーションはPydanticモデルで既に実行済み
+        # ここでバリデーションを重複する必要はありません
             
-        # This is a placeholder implementation
-        # Replace with actual chatbot logic (e.g., OpenAI API, custom model, etc.)
+        # これはプレースホルダー実装です
+        # 実際のチャットボットロジック（例：OpenAI API、カスタムモデルなど）に置き換えてください
         return f"Echo: {message}"

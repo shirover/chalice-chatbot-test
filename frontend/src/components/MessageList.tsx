@@ -27,7 +27,7 @@ const MessageList: React.FC<MessageListProps> = ({ messages }) => {
           aria-label={`${message.role === 'user' ? 'User' : 'Assistant'} message`}
         >
           <div className="message-content">
-            {/* Text content is safely rendered as text by React, preventing XSS */}
+            {/* テキストコンテンツはReactによって安全にテキストとしてレンダリングされ、XSSを防ぎます */}
             {message.content}
           </div>
           <div className="message-timestamp">
@@ -40,6 +40,6 @@ const MessageList: React.FC<MessageListProps> = ({ messages }) => {
   )
 }
 
-// Memoize the component to prevent unnecessary re-renders
-// Only re-render when messages array reference changes
+// 不要な再レンダリングを防ぐためにコンポーネントをメモ化
+// メッセージ配列の参照が変わった場合のみ再レンダリング
 export default memo(MessageList)

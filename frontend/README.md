@@ -1,42 +1,42 @@
-# Chatbot Frontend (React)
+# チャットボットフロントエンド (React)
 
-## Setup
+## セットアップ
 
-1. Install dependencies:
+1. 依存関係をインストール:
 ```bash
 npm install
 ```
 
-2. Run the development server:
+2. 開発サーバーを実行:
 ```bash
 npm run dev
 ```
 
-The application will be available at http://localhost:3000
+アプリケーションは http://localhost:3000 で利用可能になります
 
-## Available Scripts
+## 利用可能なスクリプト
 
-- `npm run dev` - Start the development server
-- `npm run build` - Build for production
-- `npm run preview` - Preview the production build
+- `npm run dev` - 開発サーバーを起動
+- `npm run build` - プロダクション用にビルド
+- `npm run preview` - プロダクションビルドをプレビュー
 
-## Project Structure
+## プロジェクト構造
 
 ```
 frontend/
 ├── src/
 │   ├── components/
-│   │   ├── ChatContainer.tsx   # Main chat container
-│   │   ├── MessageList.tsx     # Message display component
-│   │   └── MessageInput.tsx    # Message input component
+│   │   ├── ChatContainer.tsx   # メインチャットコンテナ
+│   │   ├── MessageList.tsx     # メッセージ表示コンポーネント
+│   │   └── MessageInput.tsx    # メッセージ入力コンポーネント
 │   ├── hooks/
-│   │   └── useChatbot.ts       # Custom hook for chat logic
+│   │   └── useChatbot.ts       # チャットロジック用カスタムフック
 │   ├── services/
-│   │   └── chatService.ts      # API service
+│   │   └── chatService.ts      # APIサービス
 │   ├── styles/
-│   │   └── *.css               # Component styles
+│   │   └── *.css               # コンポーネントスタイル
 │   ├── types/
-│   │   └── chat.ts             # TypeScript interfaces
+│   │   └── chat.ts             # TypeScriptインターフェース
 │   ├── App.tsx
 │   └── main.tsx
 ├── index.html
@@ -45,6 +45,6 @@ frontend/
 └── vite.config.ts
 ```
 
-## Configuration
+## 設定
 
-The frontend is configured to proxy API requests to the backend running on http://localhost:8000. This is configured in `vite.config.ts`.
+フロントエンドは、http://localhost:8000で実行されているバックエンドへのAPIリクエストをプロキシするように設定されています。これは`vite.config.ts`で設定されています。

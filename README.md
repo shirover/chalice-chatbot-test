@@ -1,110 +1,110 @@
-# Chatbot Application
+# チャットボットアプリケーション
 
-A modern chatbot application built with React (frontend) and FastAPI (backend).
+React（フロントエンド）とFastAPI（バックエンド）で構築されたモダンなチャットボットアプリケーション。
 
-## Project Structure
+## プロジェクト構造
 
 ```
 .
-├── backend/           # FastAPI backend
+├── backend/           # FastAPIバックエンド
 │   ├── app/
-│   │   ├── api/      # API endpoints
-│   │   ├── core/     # Core configuration
-│   │   ├── services/ # Business logic
-│   │   └── main.py   # FastAPI application
+│   │   ├── api/      # APIエンドポイント
+│   │   ├── core/     # コア設定
+│   │   ├── services/ # ビジネスロジック
+│   │   └── main.py   # FastAPIアプリケーション
 │   └── requirements.txt
-├── frontend/          # React frontend
+├── frontend/          # Reactフロントエンド
 │   ├── src/
-│   │   ├── components/  # React components
-│   │   ├── hooks/       # Custom hooks
-│   │   ├── services/    # API services
-│   │   ├── styles/      # CSS styles
-│   │   └── types/       # TypeScript types
+│   │   ├── components/  # Reactコンポーネント
+│   │   ├── hooks/       # カスタムフック
+│   │   ├── services/    # APIサービス
+│   │   ├── styles/      # CSSスタイル
+│   │   └── types/       # TypeScript型定義
 │   └── package.json
 └── README.md
 ```
 
-## Quick Start
+## クイックスタート
 
-### Backend Setup
+### バックエンドのセットアップ
 
-1. Navigate to the backend directory:
+1. バックエンドディレクトリに移動:
 ```bash
 cd backend
 ```
 
-2. Create a virtual environment and activate it:
+2. 仮想環境を作成して有効化:
 ```bash
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+source venv/bin/activate  # Windowsの場合: venv\Scripts\activate
 ```
 
-3. Install dependencies:
+3. 依存関係をインストール:
 ```bash
 pip install -r requirements.txt
 ```
 
-4. Copy `.env.example` to `.env` and configure as needed.
+4. `.env.example`を`.env`にコピーして必要に応じて設定。
 
-5. Run the development server:
+5. 開発サーバーを実行:
 ```bash
 uvicorn app.main:app --reload
 ```
 
-The API will be available at http://localhost:8000
+APIは http://localhost:8000 で利用可能になります
 
-### Frontend Setup
+### フロントエンドのセットアップ
 
-1. Navigate to the frontend directory:
+1. フロントエンドディレクトリに移動:
 ```bash
 cd frontend
 ```
 
-2. Install dependencies:
+2. 依存関係をインストール:
 ```bash
 npm install
 ```
 
-3. Run the development server:
+3. 開発サーバーを実行:
 ```bash
 npm run dev
 ```
 
-The application will be available at http://localhost:3000
+アプリケーションは http://localhost:3000 で利用可能になります
 
-## Features
+## 機能
 
-- Real-time chat interface
-- RESTful API with FastAPI
-- React with TypeScript
-- Modular and extensible architecture
-- CORS configuration for development
-- Auto-scrolling message list
-- Loading states and error handling
+- リアルタイムチャットインターフェース
+- FastAPIによるRESTful API
+- TypeScriptを使用したReact
+- モジュラーで拡張可能なアーキテクチャ
+- 開発用のCORS設定
+- 自動スクロールメッセージリスト
+- ローディング状態とエラーハンドリング
 
-## Customization
+## カスタマイズ
 
-### Adding New Features
+### 新機能の追加
 
-1. **Backend**: Add new endpoints in `backend/app/api/endpoints/`
-2. **Frontend**: Add new components in `frontend/src/components/`
-3. **Services**: Implement business logic in `backend/app/services/`
-4. **Styling**: Customize styles in `frontend/src/styles/`
+1. **バックエンド**: `backend/app/api/endpoints/`に新しいエンドポイントを追加
+2. **フロントエンド**: `frontend/src/components/`に新しいコンポーネントを追加
+3. **サービス**: `backend/app/services/`にビジネスロジックを実装
+4. **スタイリング**: `frontend/src/styles/`でスタイルをカスタマイズ
 
-### Integrating AI Models
+### AIモデルの統合
 
-To integrate actual AI models (e.g., OpenAI, Anthropic, or custom models):
+実際のAIモデル（例：OpenAI、Anthropic、カスタムモデル）を統合するには：
 
-1. Update `backend/app/services/chatbot.py` with your AI integration
-2. Add necessary API keys to the `.env` file
-3. Install required Python packages and update `requirements.txt`
+1. `backend/app/services/chatbot.py`をAI統合で更新
+2. 必要なAPIキーを`.env`ファイルに追加
+3. 必要なPythonパッケージをインストールし、`requirements.txt`を更新
 
-## Development
+## 開発
 
-- Backend API documentation: http://localhost:8000/docs
-- Frontend development server: http://localhost:3000
-- Hot-reloading enabled for both frontend and backend
+- バックエンドAPIドキュメント: http://localhost:8000/docs
+- フロントエンド開発サーバー: http://localhost:3000
+- フロントエンドとバックエンドの両方でホットリロードが有効
 
-## License
+## ライセンス
 
-This project is open source and available under the MIT License.
+このプロジェクトはオープンソースで、MITライセンスの下で利用可能です。
