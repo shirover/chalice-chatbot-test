@@ -17,26 +17,17 @@ jobs:
       (github.event_name == 'issues' && (contains(github.event.issue.body, '@claude') || contains(github.event.issue.title, '@claude')))
     runs-on: ubuntu-latest
     permissions:
-      # 既存の権限
-      contents: write
-      pull-requests: write
-      issues: write
-      id-token: write
-      # 追加で必要な権限
-      actions: write          # Actionsワークフローの管理
-      checks: write          # チェック結果の書き込み
-      discussions: write     # ディスカッションの作成・編集
-      metadata: read         # リポジトリメタデータの読み取り
-      packages: write        # パッケージの公開
-      pages: write           # GitHub Pagesの管理
-      security-events: write # セキュリティイベントの書き込み
-      statuses: write        # コミットステータスの設定
+      # 基本的な権限（コミット・プッシュ・PR・Issue操作）
+      contents: write        # ファイルの読み書き、コミット、プッシュ
+      pull-requests: write   # PR作成、編集、マージ
+      issues: write         # Issue作成、編集
+      id-token: write       # OIDC token取得
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           # fetchの深度を0に変更（全履歴を取得）
-          fetch-depth: 0
+          fetch-depth: 1
           # トークンを指定してより広い権限でチェックアウト
           token: ${{ secrets.GITHUB_TOKEN }}
       
