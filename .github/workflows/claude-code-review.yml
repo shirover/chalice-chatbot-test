@@ -1,75 +1,51 @@
-name: Claude Code Review
-
+name: Claude Code Review and Fix
 on:
   pull_request:
     types: [opened, synchronize]
-    # Optional: Only run on specific file changes
-    # paths:
-    #   - "src/**/*.ts"
-    #   - "src/**/*.tsx"
-    #   - "src/**/*.js"
-    #   - "src/**/*.jsx"
 
 jobs:
-  claude-review:
-    # Optional: Filter by PR author
-    # if: |
-    #   github.event.pull_request.user.login == 'external-contributor' ||
-    #   github.event.pull_request.user.login == 'new-developer' ||
-    #   github.event.pull_request.author_association == 'FIRST_TIME_CONTRIBUTOR'
-    
+  claude-review-and-fix:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
-      pull-requests: read
-      issues: read
+      contents: write        # コード修正のため write 権限が必要
+      pull-requests: write
+      issues: write
       id-token: write
     
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 1
-
-      - name: Run Claude Code Review
+          fetch-depth: 0     # 修正コミットのため full history が必要
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Run Claude Code Review and Auto-fix
         id: claude-review
         uses: anthropics/claude-code-action@beta
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           
-          # Optional: Specify model (defaults to Claude Sonnet 4, uncomment for Claude Opus 4)
-          # model: "claude-opus-4-20250514"
-          
-          # Direct prompt for automated review (no @claude mention needed)
+          # 自動修正を含むプロンプト
           direct_prompt: |
-            Please review this pull request and provide feedback on:
-            - Code quality and best practices
-            - Potential bugs or issues
-            - Performance considerations
-            - Security concerns
-            - Test coverage
+            このPRをレビューし、以下を実行してください：
             
-            Be constructive and helpful in your feedback.
+            1. **コードレビュー**: 問題を特定
+            2. **自動修正**: 発見した問題を直接修正
+            
+            修正対象：
+            - コードスタイルの統一
+            - 明らかなバグの修正
+            - パフォーマンスの改善
+            - セキュリティ問題の修正
+            - タイプエラーの修正
+            - 不要なコードの削除
+            
+            修正後は修正内容を説明してください。
+            重要な設計変更は修正せず、コメントで提案してください。
           
-          # Optional: Customize review based on file types
-          # direct_prompt: |
-          #   Review this PR focusing on:
-          #   - For TypeScript files: Type safety and proper interface usage
-          #   - For API endpoints: Security, input validation, and error handling
-          #   - For React components: Performance, accessibility, and best practices
-          #   - For tests: Coverage, edge cases, and test quality
-          
-          # Optional: Different prompts for different authors
-          # direct_prompt: |
-          #   ${{ github.event.pull_request.author_association == 'FIRST_TIME_CONTRIBUTOR' && 
-          #   'Welcome! Please review this PR from a first-time contributor. Be encouraging and provide detailed explanations for any suggestions.' ||
-          #   'Please provide a thorough code review focusing on our coding standards and best practices.' }}
-          
-          # Optional: Add specific tools for running tests or linting
-          # allowed_tools: "Bash(npm run test),Bash(npm run lint),Bash(npm run typecheck)"
-          
-          # Optional: Skip review for certain conditions
-          # if: |
-          #   !contains(github.event.pull_request.title, '[skip-review]') &&
-          #   !contains(github.event.pull_request.title, '[WIP]')
-
+          # 修正に必要なツールを許可
+          allowed_tools: |
+            CreateOrEditFile(**/*)
+            Bash(npm run lint --fix)
+            Bash(npm run format)
+            Bash(npm run typecheck)
