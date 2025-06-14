@@ -7,6 +7,12 @@ from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from app.api.endpoints import chat
 from app.core.config import settings
+import uuid
+import logging
+
+# Configure structured logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Initialize rate limiter
 limiter = Limiter(key_func=get_remote_address)
@@ -20,17 +26,26 @@ app = FastAPI(
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
-# Add middleware for request body size limit (1MB)
+# Add middleware for request ID tracking and body size limit
 @app.middleware("http")
-async def limit_request_size(request: Request, call_next):
+async def add_request_id_and_limit_size(request: Request, call_next):
+    # Generate request ID for tracing
+    request_id = str(uuid.uuid4())
+    request.state.request_id = request_id
+    
+    # Check request body size limit (1MB)
     if request.headers.get("content-length"):
         content_length = int(request.headers["content-length"])
         if content_length > 1024 * 1024:  # 1MB limit
+            logger.warning(f"Request {request_id} rejected: body too large ({content_length} bytes)")
             return JSONResponse(
                 status_code=413,
-                content={"detail": "Request body too large. Maximum size is 1MB"}
+                content={"detail": "Request body too large. Maximum size is 1MB"},
+                headers={"X-Request-ID": request_id}
             )
+    
     response = await call_next(request)
+    response.headers["X-Request-ID"] = request_id
     return response
 
 # Add security headers middleware
@@ -42,12 +57,12 @@ async def add_security_headers(request: Request, call_next):
     response.headers["X-XSS-Protection"] = "1; mode=block"
     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
     
-    # Add CSP header for production
+    # Add CSP header for production with stricter settings
     if settings.ENVIRONMENT == "production":
         response.headers["Content-Security-Policy"] = (
             "default-src 'self'; "
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval'; "
-            "style-src 'self' 'unsafe-inline'; "
+            "script-src 'self'; "  # Removed unsafe-inline and unsafe-eval for better security
+            "style-src 'self' 'unsafe-inline'; "  # Keep unsafe-inline for styles only
             "img-src 'self' data: https:; "
             "font-src 'self' data:; "
             "connect-src 'self' " + " ".join(settings.ALLOWED_ORIGINS) + "; "
@@ -83,7 +98,8 @@ async def root():
     return {"message": "Welcome to the Chatbot API"}
 
 @app.get("/health")
-async def health_check():
+@limiter.limit("10/minute")  # Add rate limiting to health check to prevent abuse
+async def health_check(request: Request):
     return {
         "status": "healthy",
         "version": settings.PROJECT_VERSION,

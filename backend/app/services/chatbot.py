@@ -24,8 +24,8 @@ class ChatbotService:
         Raises:
             ValueError: If the message is invalid
         """
-        if not message or not message.strip():
-            raise ValueError("Message cannot be empty")
+        # Message validation is already done in the Pydantic model
+        # No need to duplicate validation here
             
         # This is a placeholder implementation
         # Replace with actual chatbot logic (e.g., OpenAI API, custom model, etc.)

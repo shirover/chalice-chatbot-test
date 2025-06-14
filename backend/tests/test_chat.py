@@ -43,4 +43,7 @@ def test_send_message_missing_field():
 def test_health_check():
     response = client.get("/health")
     assert response.status_code == 200
-    assert response.json() == {"status": "healthy"}
+    json_response = response.json()
+    assert json_response["status"] == "healthy"
+    assert "version" in json_response
+    assert "environment" in json_response

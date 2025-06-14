@@ -1,14 +1,12 @@
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request, Depends
 from pydantic import BaseModel, Field, field_validator
-from slowapi import Limiter
-from slowapi.util import get_remote_address
 from app.services.chatbot import ChatbotService
 from app.core.config import settings
 import logging
+from typing import Annotated
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
-limiter = Limiter(key_func=get_remote_address)
 
 class ChatMessage(BaseModel):
     message: str = Field(..., min_length=1, max_length=1000)
@@ -23,19 +21,32 @@ class ChatMessage(BaseModel):
 class ChatResponse(BaseModel):
     response: str
 
-chatbot_service = ChatbotService()
+# Dependency injection for chatbot service
+async def get_chatbot_service() -> ChatbotService:
+    return ChatbotService()
 
 @router.post("/", response_model=ChatResponse)
-@limiter.limit(f"{settings.RATE_LIMIT_PER_MINUTE}/minute")
-async def send_message(request: Request, chat_message: ChatMessage):
+async def send_message(
+    request: Request, 
+    chat_message: ChatMessage,
+    chatbot_service: Annotated[ChatbotService, Depends(get_chatbot_service)]
+):
     try:
-        logger.info(f"Processing message from {get_remote_address(request)}: {chat_message.message[:50]}...")
+        # Get request ID for logging
+        request_id = getattr(request.state, 'request_id', 'unknown')
+        remote_addr = request.client.host if request.client else 'unknown'
+        
+        # Log message without exposing sensitive content
+        logger.info(f"Request {request_id}: Processing chat message from {remote_addr}")
+        
         response = await chatbot_service.process_message(chat_message.message)
-        logger.info(f"Successfully processed message, response length: {len(response)}")
+        
+        logger.info(f"Request {request_id}: Successfully processed message")
         return ChatResponse(response=response)
     except ValueError as e:
-        logger.warning(f"Validation error: {str(e)}")
+        logger.warning(f"Request {request_id}: Validation error: {str(e)}")
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        logger.error(f"Error processing message: {str(e)}", exc_info=True)
+        request_id = getattr(request.state, 'request_id', 'unknown')
+        logger.error(f"Request {request_id}: Error processing message", exc_info=True)
         raise HTTPException(status_code=500, detail="An error occurred while processing your message")

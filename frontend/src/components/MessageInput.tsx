@@ -1,4 +1,4 @@
-import React, { useState, FormEvent } from 'react'
+import React, { useState, FormEvent, memo } from 'react'
 import '../styles/MessageInput.css'
 
 interface MessageInputProps {
@@ -41,4 +41,5 @@ const MessageInput: React.FC<MessageInputProps> = ({ onSendMessage, isLoading })
   )
 }
 
-export default MessageInput
+// Memoize to prevent unnecessary re-renders
+export default memo(MessageInput)

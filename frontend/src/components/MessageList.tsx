@@ -6,7 +6,7 @@ interface MessageListProps {
   messages: Message[]
 }
 
-const MessageList: React.FC<MessageListProps> = memo(({ messages }) => {
+const MessageList: React.FC<MessageListProps> = ({ messages }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const scrollToBottom = () => {
@@ -26,7 +26,10 @@ const MessageList: React.FC<MessageListProps> = memo(({ messages }) => {
           role="article"
           aria-label={`${message.role === 'user' ? 'User' : 'Assistant'} message`}
         >
-          <div className="message-content">{message.content}</div>
+          <div className="message-content">
+            {/* Text content is safely rendered as text by React, preventing XSS */}
+            {message.content}
+          </div>
           <div className="message-timestamp">
             {new Date(message.timestamp).toLocaleTimeString()}
           </div>
@@ -35,6 +38,8 @@ const MessageList: React.FC<MessageListProps> = memo(({ messages }) => {
       <div ref={messagesEndRef} />
     </div>
   )
-})
+}
 
-export default MessageList
+// Memoize the component to prevent unnecessary re-renders
+// Only re-render when messages array reference changes
+export default memo(MessageList)

@@ -1,11 +1,16 @@
 import pytest
 from fastapi.testclient import TestClient
-from app.main import app
+from app.main import app, limiter
 import time
 
-client = TestClient(app)
+# Create fresh client for each test to avoid interference
+@pytest.fixture
+def test_client():
+    # Reset rate limiter state between tests
+    limiter.reset()
+    return TestClient(app)
 
-def test_rate_limit_enforcement():
+def test_rate_limit_enforcement(test_client):
     """Test that rate limiting is enforced after exceeding the limit"""
     # Get the rate limit from settings (default is 60/minute)
     # For testing, we'll send many requests quickly
@@ -13,7 +18,7 @@ def test_rate_limit_enforcement():
     # Send requests up to the limit
     responses = []
     for i in range(61):  # Try to exceed the 60/minute limit
-        response = client.post(
+        response = test_client.post(
             "/api/v1/chat/",
             json={"message": f"Test message {i}"}
         )
@@ -31,9 +36,9 @@ def test_rate_limit_enforcement():
     rate_limited_response = next(r for r in responses if r.status_code == 429)
     assert "rate limit" in rate_limited_response.json()["detail"].lower()
 
-def test_rate_limit_headers():
+def test_rate_limit_headers(test_client):
     """Test that rate limit headers are included in responses"""
-    response = client.post(
+    response = test_client.post(
         "/api/v1/chat/",
         json={"message": "Test message"}
     )
@@ -45,8 +50,7 @@ def test_rate_limit_headers():
 
 def test_rate_limit_per_ip():
     """Test that rate limiting is per IP address"""
-    # This test would require mocking different IP addresses
-    # For now, we'll just verify the rate limiter is configured
-    from app.api.endpoints.chat import limiter
+    # Verify the rate limiter is configured properly
+    from app.main import limiter
     assert limiter is not None
     assert limiter._key_func.__name__ == 'get_remote_address'

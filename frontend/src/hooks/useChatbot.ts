@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 import { Message } from '../types/chat'
 import { chatService } from '../services/chatService'
 import { generateId } from '../utils/uuid'
@@ -76,11 +76,18 @@ export const useChatbot = () => {
       
       // In production, this should send errors to a logging service
       // Example: errorLoggingService.logError('Error sending message', error)
-      const errorContent = (error as any).response?.status === 429 
-        ? 'Rate limit exceeded. Please wait a moment before sending another message.'
-        : (error as any).response?.status === 413
-        ? 'Message is too large. Please shorten your message.'
-        : 'Sorry, I encountered an error. Please try again.'
+      
+      // Type-safe error handling
+      let errorContent = 'Sorry, I encountered an error. Please try again.'
+      
+      if (error && typeof error === 'object' && 'response' in error) {
+        const responseError = error as { response?: { status?: number } }
+        if (responseError.response?.status === 429) {
+          errorContent = 'Rate limit exceeded. Please wait a moment before sending another message.'
+        } else if (responseError.response?.status === 413) {
+          errorContent = 'Message is too large. Please shorten your message.'
+        }
+      }
       
       const errorMessage: Message = {
         id: generateId(),
@@ -95,6 +102,15 @@ export const useChatbot = () => {
     } finally {
       setIsLoading(false)
       abortControllerRef.current = null
+    }
+  }, [])
+
+  // Cleanup: abort pending requests on unmount
+  useEffect(() => {
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort()
+      }
     }
   }, [])
 

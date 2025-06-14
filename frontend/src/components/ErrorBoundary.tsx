@@ -31,34 +31,20 @@ class ErrorBoundary extends Component<Props, State> {
   public render() {
     if (this.state.hasError) {
       return (
-        <div style={{ 
-          padding: '20px', 
-          textAlign: 'center',
-          backgroundColor: '#f8d7da',
-          color: '#721c24',
-          borderRadius: '4px',
-          margin: '20px'
-        }}>
+        <div className="error-boundary">
           <h2>Something went wrong</h2>
           <p>Please refresh the page and try again.</p>
           <button 
             onClick={this.handleReload}
-            style={{
-              padding: '8px 16px',
-              backgroundColor: '#721c24',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              marginTop: '10px'
-            }}
+            className="error-boundary-button"
           >
             Reload Page
           </button>
-          {this.state.error && (
-            <details style={{ marginTop: '10px' }}>
-              <summary>Error details</summary>
-              <pre style={{ textAlign: 'left', fontSize: '12px' }}>
+          {/* Only show error details in development */}
+          {process.env.NODE_ENV === 'development' && this.state.error && (
+            <details className="error-details">
+              <summary>Error details (development only)</summary>
+              <pre>
                 {this.state.error.toString()}
               </pre>
             </details>
