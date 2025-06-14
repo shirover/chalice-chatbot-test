@@ -15,4 +15,4 @@ const ChatContainer: React.FC = () => {
   )
 }
 
-export default ChatContainer
+export default React.memo(ChatContainer)

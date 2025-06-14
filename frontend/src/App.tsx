@@ -3,7 +3,7 @@ import ChatContainer from './components/ChatContainer'
 import ErrorBoundary from './components/ErrorBoundary'
 import './styles/App.css'
 
-function App() {
+function App(): JSX.Element {
   return (
     <ErrorBoundary>
       <div className="app">

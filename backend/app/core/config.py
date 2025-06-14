@@ -29,6 +29,9 @@ class Settings(BaseSettings):
     # Rate limiting
     RATE_LIMIT_PER_MINUTE: int = Field(default=60)
     
+    # Request size limit (1MB by default)
+    MAX_REQUEST_SIZE: int = Field(default=1024 * 1024)
+    
     # Logging
     LOG_LEVEL: str = Field(default="INFO")
     
@@ -36,7 +39,7 @@ class Settings(BaseSettings):
         env_file = ".env"
     
     @property
-    def ALLOWED_ORIGINS(self) -> List[str]:
+    def allowed_origins(self) -> List[str]:
         """Dynamically build allowed origins list based on configuration"""
         origins = self._allowed_origins_base.copy()
         

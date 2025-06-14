@@ -9,6 +9,7 @@ from app.api.endpoints import chat
 from app.core.config import settings
 import uuid
 import logging
+from urllib.parse import urlparse
 
 # Configure structured logging
 logging.basicConfig(level=logging.INFO)
@@ -61,11 +62,11 @@ async def add_security_headers(request: Request, call_next):
     if settings.ENVIRONMENT == "production":
         response.headers["Content-Security-Policy"] = (
             "default-src 'self'; "
-            "script-src 'self'; "  # Removed unsafe-inline and unsafe-eval for better security
+            "script-src 'self'; "  # No unsafe-eval for better XSS protection
             "style-src 'self' 'unsafe-inline'; "  # Keep unsafe-inline for styles only
             "img-src 'self' data: https:; "
             "font-src 'self' data:; "
-            "connect-src 'self' " + " ".join(settings.ALLOWED_ORIGINS) + "; "
+            "connect-src 'self' " + " ".join(settings.allowed_origins) + "; "
             "frame-ancestors 'none';"
         )
         response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
@@ -75,7 +76,7 @@ async def add_security_headers(request: Request, call_next):
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.ALLOWED_ORIGINS,
+    allow_origins=settings.allowed_origins,
     allow_credentials=True,
     allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["Content-Type", "Authorization"],
@@ -83,7 +84,6 @@ app.add_middleware(
 
 # Add trusted host middleware for production
 if settings.ENVIRONMENT == "production" and settings.PRODUCTION_FRONTEND_URL:
-    from urllib.parse import urlparse
     parsed_url = urlparse(settings.PRODUCTION_FRONTEND_URL)
     if parsed_url.hostname:
         app.add_middleware(

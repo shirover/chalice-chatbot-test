@@ -6,8 +6,9 @@ import time
 # Create fresh client for each test to avoid interference
 @pytest.fixture
 def test_client():
-    # Reset rate limiter state between tests
-    limiter.reset()
+    # Clear rate limiter storage between tests
+    if hasattr(limiter, '_storage'):
+        limiter._storage.clear()
     return TestClient(app)
 
 def test_rate_limit_enforcement(test_client):
