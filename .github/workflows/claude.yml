@@ -1,5 +1,4 @@
 name: Claude Code
-
 on:
   issue_comment:
     types: [created]
@@ -9,7 +8,6 @@ on:
     types: [opened, assigned]
   pull_request_review:
     types: [submitted]
-
 jobs:
   claude:
     if: |
@@ -19,15 +17,35 @@ jobs:
       (github.event_name == 'issues' && (contains(github.event.issue.body, '@claude') || contains(github.event.issue.title, '@claude')))
     runs-on: ubuntu-latest
     permissions:
+      # 既存の権限
       contents: write
       pull-requests: write
       issues: write
       id-token: write
+      # 追加で必要な権限
+      actions: write          # Actionsワークフローの管理
+      checks: write          # チェック結果の書き込み
+      discussions: write     # ディスカッションの作成・編集
+      metadata: read         # リポジトリメタデータの読み取り
+      packages: write        # パッケージの公開
+      pages: write           # GitHub Pagesの管理
+      security-events: write # セキュリティイベントの書き込み
+      statuses: write        # コミットステータスの設定
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 1
+          # fetchの深度を0に変更（全履歴を取得）
+          fetch-depth: 0
+          # トークンを指定してより広い権限でチェックアウト
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      # Gitの設定を追加
+      - name: Configure Git
+        run: |
+          git config --global user.name "claude-code[bot]"
+          git config --global user.email "claude-code[bot]@users.noreply.github.com"
+      
       - name: Run Claude Code
         id: claude
         uses: shirover/claude-code-action@main
@@ -36,3 +54,5 @@ jobs:
           claude_access_token: ${{ secrets.CLAUDE_ACCESS_TOKEN }}
           claude_refresh_token: ${{ secrets.CLAUDE_REFRESH_TOKEN }}
           claude_expires_at: ${{ secrets.CLAUDE_EXPIRES_AT }}
+          # GitHub Tokenを明示的に渡す
+          github_token: ${{ secrets.GITHUB_TOKEN }}
