@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, Request
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 from app.services.chatbot import ChatbotService
@@ -13,8 +13,9 @@ limiter = Limiter(key_func=get_remote_address)
 class ChatMessage(BaseModel):
     message: str = Field(..., min_length=1, max_length=1000)
     
-    @validator('message')
-    def message_must_not_be_empty(cls, v):
+    @field_validator('message')
+    @classmethod
+    def message_must_not_be_empty(cls, v: str) -> str:
         if not v or not v.strip():
             raise ValueError('Message cannot be empty')
         return v.strip()

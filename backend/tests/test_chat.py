@@ -39,3 +39,8 @@ def test_send_message_missing_field():
         json={}
     )
     assert response.status_code == 422  # Validation error
+
+def test_health_check():
+    response = client.get("/health")
+    assert response.status_code == 200
+    assert response.json() == {"status": "healthy"}

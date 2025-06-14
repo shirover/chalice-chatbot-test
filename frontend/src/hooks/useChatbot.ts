@@ -68,16 +68,17 @@ export const useChatbot = () => {
         const newMessages = [...prev, botMessage]
         return newMessages.slice(-MAX_MESSAGES)
       })
-    } catch (error: any) {
+    } catch (error) {
       // Don't show error for aborted requests
-      if (error.name === 'AbortError') {
+      if (error instanceof Error && error.name === 'AbortError') {
         return
       }
       
-      console.error('Error sending message:', error)
-      const errorContent = error.response?.status === 429 
+      // In production, this should send errors to a logging service
+      // Example: errorLoggingService.logError('Error sending message', error)
+      const errorContent = (error as any).response?.status === 429 
         ? 'Rate limit exceeded. Please wait a moment before sending another message.'
-        : error.response?.status === 413
+        : (error as any).response?.status === 413
         ? 'Message is too large. Please shorten your message.'
         : 'Sorry, I encountered an error. Please try again.'
       

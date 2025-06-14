@@ -20,7 +20,8 @@ class ErrorBoundary extends Component<Props, State> {
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('Uncaught error:', error, errorInfo)
+    // In production, this should send errors to a logging service
+    // Example: errorLoggingService.logError(error, errorInfo)
   }
 
   private handleReload = () => {
