@@ -1,6 +1,6 @@
 # Chatbot Application
 
-A modern chatbot application built with React (frontend) and FastAPI (backend).
+A modern chatbot application built with React (frontend) and FastAPI (backend), designed for both local development and AWS EC2 deployment.
 
 ## Project Structure
 
@@ -70,17 +70,21 @@ npm install
 npm run dev
 ```
 
-The application will be available at http://localhost:3000
+The application will be available at http://localhost:5173
 
 ## Features
 
-- Real-time chat interface
-- RESTful API with FastAPI
-- React with TypeScript
+- Real-time chat interface with message validation
+- RESTful API with FastAPI and input validation
+- React with TypeScript and proper error handling
 - Modular and extensible architecture
-- CORS configuration for development
-- Auto-scrolling message list
+- CORS configuration for development and production
+- Auto-scrolling message list with message limits
 - Loading states and error handling
+- Request cancellation support
+- Docker support for easy deployment
+- AWS EC2 deployment ready
+- Comprehensive test structure
 
 ## Customization
 
@@ -101,9 +105,81 @@ To integrate actual AI models (e.g., OpenAI, Anthropic, or custom models):
 
 ## Development
 
+### Local Development
+
 - Backend API documentation: http://localhost:8000/docs
-- Frontend development server: http://localhost:3000
+- Frontend development server: http://localhost:5173
 - Hot-reloading enabled for both frontend and backend
+
+### Docker Development
+
+```bash
+# Run with Docker Compose (development)
+docker-compose -f docker-compose.dev.yml up
+
+# Run with Docker Compose (production)
+docker-compose up --build
+```
+
+### Testing
+
+#### Backend Tests
+```bash
+cd backend
+pytest
+# With coverage
+pytest --cov=app
+```
+
+#### Frontend Tests
+```bash
+cd frontend
+npm test
+# With coverage
+npm run test:coverage
+```
+
+## Deployment
+
+### AWS EC2 Deployment
+
+1. **Update environment variables**:
+   - Set `EC2_PUBLIC_IP` in `.env`
+   - Set `PRODUCTION_FRONTEND_URL` if using a domain
+   - Configure `AWS_REGION` if needed
+
+2. **Security Group Configuration**:
+   - Port 80 (HTTP) for frontend
+   - Port 8000 (or custom) for backend API
+   - Port 22 (SSH) for administration
+
+3. **Deploy with Docker**:
+   ```bash
+   # On EC2 instance
+   git clone <your-repo>
+   cd <your-repo>
+   
+   # Copy and configure .env files
+   cp backend/.env.example backend/.env
+   # Edit backend/.env with production values
+   
+   # Build and run
+   docker-compose up -d --build
+   ```
+
+4. **Configure Nginx (optional)**:
+   - Use the provided `frontend/nginx.conf` as a reference
+   - Set up SSL with Let's Encrypt for HTTPS
+
+### Environment Variables
+
+Key environment variables for production:
+
+- `ENVIRONMENT`: Set to "production"
+- `EC2_PUBLIC_IP`: Your EC2 instance public IP
+- `PRODUCTION_FRONTEND_URL`: Your domain URL (if applicable)
+- `RATE_LIMIT_PER_MINUTE`: API rate limiting
+- `LOG_LEVEL`: Logging level (INFO, DEBUG, etc.)
 
 ## License
 
