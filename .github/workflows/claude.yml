@@ -29,7 +29,7 @@ jobs:
           # fetchの深度を0に変更（全履歴を取得）
           fetch-depth: 1
           # トークンを指定してより広い権限でチェックアウト
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       
       # Gitの設定を追加
       - name: Configure Git
@@ -46,4 +46,4 @@ jobs:
           claude_refresh_token: ${{ secrets.CLAUDE_REFRESH_TOKEN }}
           claude_expires_at: ${{ secrets.CLAUDE_EXPIRES_AT }}
           # GitHub Tokenを明示的に渡す
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
