@@ -1,46 +1,46 @@
-# Chatbot Backend (FastAPI)
+# チャットボットバックエンド (FastAPI)
 
-## Setup
+## セットアップ
 
-1. Create a virtual environment:
+1. 仮想環境を作成:
 ```bash
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+source venv/bin/activate  # Windowsの場合: venv\Scripts\activate
 ```
 
-2. Install dependencies:
+2. 依存関係をインストール:
 ```bash
 pip install -r requirements.txt
 ```
 
-3. Copy `.env.example` to `.env` and update the values as needed.
+3. `.env.example`を`.env`にコピーして、必要に応じて値を更新。
 
-4. Run the development server:
+4. 開発サーバーを実行:
 ```bash
 uvicorn app.main:app --reload
 ```
 
-The API will be available at http://localhost:8000
+APIは http://localhost:8000 で利用可能になります
 
-## API Documentation
+## APIドキュメント
 
-Once the server is running, you can access:
-- Interactive API docs: http://localhost:8000/docs
-- Alternative API docs: http://localhost:8000/redoc
+サーバーが起動したら、以下にアクセスできます：
+- インタラクティブAPIドキュメント: http://localhost:8000/docs
+- 代替APIドキュメント: http://localhost:8000/redoc
 
-## Project Structure
+## プロジェクト構造
 
 ```
 backend/
 ├── app/
 │   ├── api/
 │   │   └── endpoints/
-│   │       └── chat.py      # Chat endpoints
+│   │       └── chat.py      # チャットエンドポイント
 │   ├── core/
-│   │   └── config.py        # Configuration settings
+│   │   └── config.py        # 設定
 │   ├── services/
-│   │   └── chatbot.py       # Chatbot service logic
-│   └── main.py              # FastAPI application
+│   │   └── chatbot.py       # チャットボットサービスロジック
+│   └── main.py              # FastAPIアプリケーション
 ├── requirements.txt
 └── .env.example
 ```

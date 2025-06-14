@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { useChatbot } from './useChatbot'
 import { chatService } from '../services/chatService'
 
-// Mock the chat service
+// チャットサービスをモック
 vi.mock('../services/chatService', () => ({
   chatService: {
     sendMessage: vi.fn()

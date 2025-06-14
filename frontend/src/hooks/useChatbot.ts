@@ -12,7 +12,7 @@ export const useChatbot = () => {
   const abortControllerRef = useRef<AbortController | null>(null)
 
   const sendMessage = useCallback(async (content: string) => {
-    // Input validation
+    // 入力検証
     const trimmedContent = content.trim()
     if (!trimmedContent) {
       return
@@ -22,19 +22,19 @@ export const useChatbot = () => {
       const errorMessage: Message = {
         id: generateId(),
         role: 'assistant',
-        content: `Message is too long. Please keep it under ${MAX_MESSAGE_LENGTH} characters.`,
+        content: `メッセージが長すぎます。${MAX_MESSAGE_LENGTH}文字以内にしてください。`,
         timestamp: new Date(),
       }
       setMessages((prev) => [...prev, errorMessage])
       return
     }
 
-    // Cancel previous request if still pending
+    // まだ保留中の場合は前のリクエストをキャンセル
     if (abortControllerRef.current) {
       abortControllerRef.current.abort()
     }
 
-    // Create new abort controller for this request
+    // このリクエスト用の新しいアボートコントローラーを作成
     abortControllerRef.current = new AbortController()
     const userMessage: Message = {
       id: generateId(),
@@ -44,7 +44,7 @@ export const useChatbot = () => {
     }
 
     setMessages((prev) => {
-      // Limit messages to prevent memory issues
+      // メモリの問題を防ぐためにメッセージを制限
       const newMessages = [...prev, userMessage]
       return newMessages.slice(-MAX_MESSAGES)
     })
@@ -53,7 +53,7 @@ export const useChatbot = () => {
     try {
       const response = await chatService.sendMessage(trimmedContent, abortControllerRef.current.signal)
       
-      // Check if request was aborted
+      // リクエストが中止されたかチェック
       if (abortControllerRef.current.signal.aborted) {
         return
       }
@@ -69,23 +69,23 @@ export const useChatbot = () => {
         return newMessages.slice(-MAX_MESSAGES)
       })
     } catch (error) {
-      // Don't show error for aborted requests
+      // 中止されたリクエストのエラーは表示しない
       if (error instanceof Error && error.name === 'AbortError') {
         return
       }
       
-      // In production, this should send errors to a logging service
-      // Example: errorLoggingService.logError('Error sending message', error)
+      // プロダクション環境では、これはエラーをログサービスに送信する必要があります
+      // 例: errorLoggingService.logError('Error sending message', error)
       
-      // Type-safe error handling
-      let errorContent = 'Sorry, I encountered an error. Please try again.'
+      // 型安全なエラーハンドリング
+      let errorContent = '申し訳ありません、エラーが発生しました。もう一度お試しください。'
       
       if (error && typeof error === 'object' && 'response' in error) {
         const responseError = error as { response?: { status?: number } }
         if (responseError.response?.status === 429) {
-          errorContent = 'Rate limit exceeded. Please wait a moment before sending another message.'
+          errorContent = 'レート制限を超えました。しばらく待ってから次のメッセージを送信してください。'
         } else if (responseError.response?.status === 413) {
-          errorContent = 'Message is too large. Please shorten your message.'
+          errorContent = 'メッセージが大きすぎます。メッセージを短くしてください。'
         }
       }
       
@@ -105,7 +105,7 @@ export const useChatbot = () => {
     }
   }, [])
 
-  // Cleanup: abort pending requests on unmount
+  // クリーンアップ：アンマウント時に保留中のリクエストを中止
   useEffect(() => {
     return () => {
       if (abortControllerRef.current) {

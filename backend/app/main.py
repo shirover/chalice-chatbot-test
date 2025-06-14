@@ -11,11 +11,11 @@ import uuid
 import logging
 from urllib.parse import urlparse
 
-# Configure structured logging
+# 構造化ログの設定
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Initialize rate limiter
+# レート制限の初期化
 limiter = Limiter(key_func=get_remote_address)
 
 app = FastAPI(
@@ -23,25 +23,25 @@ app = FastAPI(
     version=settings.PROJECT_VERSION,
 )
 
-# Add rate limit exceeded handler
+# レート制限超過ハンドラーを追加
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
-# Add middleware for request ID tracking and body size limit
+# リクエストIDトラッキングとボディサイズ制限のミドルウェアを追加
 @app.middleware("http")
 async def add_request_id_and_limit_size(request: Request, call_next):
-    # Generate request ID for tracing
+    # トレース用のリクエストIDを生成
     request_id = str(uuid.uuid4())
     request.state.request_id = request_id
     
-    # Check request body size limit (1MB)
+    # リクエストボディサイズ制限をチェック
     if request.headers.get("content-length"):
         content_length = int(request.headers["content-length"])
-        if content_length > 1024 * 1024:  # 1MB limit
+        if content_length > settings.MAX_REQUEST_SIZE:
             logger.warning(f"Request {request_id} rejected: body too large ({content_length} bytes)")
             return JSONResponse(
                 status_code=413,
-                content={"detail": "Request body too large. Maximum size is 1MB"},
+                content={"detail": f"Request body too large. Maximum size is {settings.MAX_REQUEST_SIZE // (1024 * 1024)}MB"},
                 headers={"X-Request-ID": request_id}
             )
     
@@ -49,7 +49,7 @@ async def add_request_id_and_limit_size(request: Request, call_next):
     response.headers["X-Request-ID"] = request_id
     return response
 
-# Add security headers middleware
+# セキュリティヘッダーミドルウェアを追加
 @app.middleware("http")
 async def add_security_headers(request: Request, call_next):
     response = await call_next(request)
@@ -58,12 +58,12 @@ async def add_security_headers(request: Request, call_next):
     response.headers["X-XSS-Protection"] = "1; mode=block"
     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
     
-    # Add CSP header for production with stricter settings
+    # プロダクション環境用により厳格な設定でCSPヘッダーを追加
     if settings.ENVIRONMENT == "production":
         response.headers["Content-Security-Policy"] = (
             "default-src 'self'; "
-            "script-src 'self'; "  # No unsafe-eval for better XSS protection
-            "style-src 'self' 'unsafe-inline'; "  # Keep unsafe-inline for styles only
+            "script-src 'self'; "  # XSS保護を強化するためunsafe-evalなし
+            "style-src 'self' 'unsafe-inline'; "  # スタイルのみunsafe-inlineを維持
             "img-src 'self' data: https:; "
             "font-src 'self' data:; "
             "connect-src 'self' " + " ".join(settings.allowed_origins) + "; "
@@ -73,7 +73,7 @@ async def add_security_headers(request: Request, call_next):
     
     return response
 
-# Add CORS middleware
+# CORSミドルウェアを追加
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.allowed_origins,
@@ -82,7 +82,7 @@ app.add_middleware(
     allow_headers=["Content-Type", "Authorization"],
 )
 
-# Add trusted host middleware for production
+# プロダクション用の信頼済みホストミドルウェアを追加
 if settings.ENVIRONMENT == "production" and settings.PRODUCTION_FRONTEND_URL:
     parsed_url = urlparse(settings.PRODUCTION_FRONTEND_URL)
     if parsed_url.hostname:
@@ -98,7 +98,7 @@ async def root():
     return {"message": "Welcome to the Chatbot API"}
 
 @app.get("/health")
-@limiter.limit("10/minute")  # Add rate limiting to health check to prevent abuse
+@limiter.limit("10/minute")  # 悪用防止のためヘルスチェックにレート制限を追加
 async def health_check(request: Request):
     return {
         "status": "healthy",

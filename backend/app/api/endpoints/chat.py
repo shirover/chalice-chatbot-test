@@ -21,7 +21,7 @@ class ChatMessage(BaseModel):
 class ChatResponse(BaseModel):
     response: str
 
-# Dependency injection for chatbot service
+# チャットボットサービスの依存性注入
 async def get_chatbot_service() -> ChatbotService:
     return ChatbotService()
 
@@ -32,11 +32,11 @@ async def send_message(
     chatbot_service: Annotated[ChatbotService, Depends(get_chatbot_service)]
 ):
     try:
-        # Get request ID for logging
+        # ログ用のリクエストIDを取得
         request_id = getattr(request.state, 'request_id', 'unknown')
-        remote_addr = request.client.host if request.client else 'unknown'
         
-        # Log message without exposing sensitive content
+        # 機密内容を公開せずにメッセージをログ記録
+        remote_addr = request.client.host if request.client else 'unknown'
         logger.info(f"Request {request_id}: Processing chat message from {remote_addr}")
         
         response = await chatbot_service.process_message(chat_message.message)

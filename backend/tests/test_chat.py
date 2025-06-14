@@ -23,7 +23,7 @@ def test_send_empty_message():
         "/api/v1/chat/",
         json={"message": "   "}
     )
-    assert response.status_code == 422  # Validation error
+    assert response.status_code == 422  # バリデーションエラー
 
 def test_send_message_too_long():
     long_message = "a" * 1001
@@ -31,14 +31,14 @@ def test_send_message_too_long():
         "/api/v1/chat/",
         json={"message": long_message}
     )
-    assert response.status_code == 422  # Validation error
+    assert response.status_code == 422  # バリデーションエラー
 
 def test_send_message_missing_field():
     response = client.post(
         "/api/v1/chat/",
         json={}
     )
-    assert response.status_code == 422  # Validation error
+    assert response.status_code == 422  # バリデーションエラー
 
 def test_health_check():
     response = client.get("/health")
