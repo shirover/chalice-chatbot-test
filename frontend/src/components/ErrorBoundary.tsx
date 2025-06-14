@@ -23,6 +23,10 @@ class ErrorBoundary extends Component<Props, State> {
     console.error('Uncaught error:', error, errorInfo)
   }
 
+  private handleReload = () => {
+    window.location.reload()
+  }
+
   public render() {
     if (this.state.hasError) {
       return (
@@ -36,6 +40,20 @@ class ErrorBoundary extends Component<Props, State> {
         }}>
           <h2>Something went wrong</h2>
           <p>Please refresh the page and try again.</p>
+          <button 
+            onClick={this.handleReload}
+            style={{
+              padding: '8px 16px',
+              backgroundColor: '#721c24',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              marginTop: '10px'
+            }}
+          >
+            Reload Page
+          </button>
           {this.state.error && (
             <details style={{ marginTop: '10px' }}>
               <summary>Error details</summary>

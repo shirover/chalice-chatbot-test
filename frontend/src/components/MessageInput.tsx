@@ -26,8 +26,15 @@ const MessageInput: React.FC<MessageInputProps> = ({ onSendMessage, isLoading })
         onChange={(e) => setMessage(e.target.value)}
         placeholder="Type your message..."
         disabled={isLoading}
+        aria-label="Message input"
+        maxLength={1000}
       />
-      <button type="submit" className="send-button" disabled={isLoading || !message.trim()}>
+      <button 
+        type="submit" 
+        className="send-button" 
+        disabled={isLoading || !message.trim()}
+        aria-label="Send message"
+      >
         {isLoading ? 'Sending...' : 'Send'}
       </button>
     </form>

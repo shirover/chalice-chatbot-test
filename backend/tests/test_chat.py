@@ -16,7 +16,7 @@ def test_send_message_success():
     )
     assert response.status_code == 200
     assert "response" in response.json()
-    assert response.json()["response"] == "You said: Hello, chatbot!"
+    assert response.json()["response"] == "Echo: Hello, chatbot!"
 
 def test_send_empty_message():
     response = client.post(

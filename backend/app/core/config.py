@@ -23,6 +23,9 @@ class Settings(BaseSettings):
     AWS_REGION: Optional[str] = os.getenv("AWS_REGION", None)
     EC2_PUBLIC_IP: Optional[str] = os.getenv("EC2_PUBLIC_IP", None)
     
+    # Production frontend URL
+    PRODUCTION_FRONTEND_URL: Optional[str] = os.getenv("PRODUCTION_FRONTEND_URL", None)
+    
     # Rate limiting
     RATE_LIMIT_PER_MINUTE: int = int(os.getenv("RATE_LIMIT_PER_MINUTE", "60"))
     
@@ -40,8 +43,7 @@ class Settings(BaseSettings):
             self.ALLOWED_ORIGINS.append(f"https://{self.EC2_PUBLIC_IP}")
         
         # Add production frontend URL if provided
-        production_frontend_url = os.getenv("PRODUCTION_FRONTEND_URL")
-        if production_frontend_url:
-            self.ALLOWED_ORIGINS.append(production_frontend_url)
+        if self.PRODUCTION_FRONTEND_URL:
+            self.ALLOWED_ORIGINS.append(self.PRODUCTION_FRONTEND_URL)
 
 settings = Settings()

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, memo } from 'react'
 import { Message } from '../types/chat'
 import '../styles/MessageList.css'
 
@@ -6,7 +6,7 @@ interface MessageListProps {
   messages: Message[]
 }
 
-const MessageList: React.FC<MessageListProps> = ({ messages }) => {
+const MessageList: React.FC<MessageListProps> = memo(({ messages }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const scrollToBottom = () => {
@@ -18,11 +18,13 @@ const MessageList: React.FC<MessageListProps> = ({ messages }) => {
   }, [messages])
 
   return (
-    <div className="message-list">
+    <div className="message-list" role="log" aria-live="polite" aria-label="Chat messages">
       {messages.map((message) => (
         <div
           key={message.id}
           className={`message ${message.role === 'user' ? 'user-message' : 'bot-message'}`}
+          role="article"
+          aria-label={`${message.role === 'user' ? 'User' : 'Assistant'} message`}
         >
           <div className="message-content">{message.content}</div>
           <div className="message-timestamp">
@@ -33,6 +35,6 @@ const MessageList: React.FC<MessageListProps> = ({ messages }) => {
       <div ref={messagesEndRef} />
     </div>
   )
-}
+})
 
 export default MessageList

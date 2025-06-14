@@ -68,8 +68,8 @@ app.add_middleware(
 
 # Add trusted host middleware for production
 if settings.ENVIRONMENT == "production" and settings.PRODUCTION_FRONTEND_URL:
-    import urllib.parse
-    parsed_url = urllib.parse.urlparse(settings.PRODUCTION_FRONTEND_URL)
+    from urllib.parse import urlparse
+    parsed_url = urlparse(settings.PRODUCTION_FRONTEND_URL)
     if parsed_url.hostname:
         app.add_middleware(
             TrustedHostMiddleware,

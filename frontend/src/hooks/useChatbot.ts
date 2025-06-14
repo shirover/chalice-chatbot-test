@@ -75,10 +75,16 @@ export const useChatbot = () => {
       }
       
       console.error('Error sending message:', error)
+      const errorContent = error.response?.status === 429 
+        ? 'Rate limit exceeded. Please wait a moment before sending another message.'
+        : error.response?.status === 413
+        ? 'Message is too large. Please shorten your message.'
+        : 'Sorry, I encountered an error. Please try again.'
+      
       const errorMessage: Message = {
         id: generateId(),
         role: 'assistant',
-        content: 'Sorry, I encountered an error. Please try again.',
+        content: errorContent,
         timestamp: new Date(),
       }
       setMessages((prev) => {

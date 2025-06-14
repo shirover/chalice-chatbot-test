@@ -28,10 +28,13 @@ chatbot_service = ChatbotService()
 @limiter.limit(f"{settings.RATE_LIMIT_PER_MINUTE}/minute")
 async def send_message(request: Request, chat_message: ChatMessage):
     try:
+        logger.info(f"Processing message from {get_remote_address(request)}: {chat_message.message[:50]}...")
         response = await chatbot_service.process_message(chat_message.message)
+        logger.info(f"Successfully processed message, response length: {len(response)}")
         return ChatResponse(response=response)
     except ValueError as e:
+        logger.warning(f"Validation error: {str(e)}")
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        logger.error(f"Error processing message: {str(e)}")
+        logger.error(f"Error processing message: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail="An error occurred while processing your message")
